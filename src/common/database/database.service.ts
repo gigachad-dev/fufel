@@ -1,20 +1,18 @@
-import { join } from 'node:path'
 import { Injectable, OnModuleInit } from '@nestjs/common'
 import { Auth } from 'src/api/auth/auth.entity'
 import { DataSource } from 'typeorm'
+import { ConfigService } from '../config/config.service'
 
 @Injectable()
 export class DatabaseService implements OnModuleInit {
   private readonly _dataSource: DataSource
 
-  constructor() {
-    const databasePath = join(process.cwd(), 'db.sqlite')
-
+  constructor(private readonly configService: ConfigService) {
     this._dataSource = new DataSource({
-      type: 'sqlite',
-      database: databasePath,
+      ...this.configService.database,
+      type: 'postgres',
       entities: [Auth],
-      // logging: true,
+      logging: true,
       synchronize: true
     })
   }

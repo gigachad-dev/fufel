@@ -7,7 +7,6 @@ export class AuthController {
 
   @Get('/')
   async getSession() {
-    const tokens = await this.authService.getTokens()
-    return tokens
+    return (await this.authService.getTokens()) || {}
   }
 }

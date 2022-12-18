@@ -14,6 +14,6 @@ export class Auth {
   @Column('integer', { name: 'expiresIn' })
   expiresIn: number
 
-  @Column('time', { name: 'obtainmentTimestamp' })
+  @Column('timestamp', { name: 'obtainmentTimestamp' })
   obtainmentTimestamp: Date
 }

@@ -6,15 +6,16 @@ import { Logger, LoggerService } from 'src/common/logger/logger.service'
 
 @Injectable()
 export class BotAuthService implements OnModuleInit {
-  protected authProvider: RefreshingAuthProvider
+  protected refreshAuthProvider: RefreshingAuthProvider
   protected logger: Logger
 
   constructor(
     private readonly configService: ConfigService,
-    private readonly loggerService: LoggerService,
     private readonly authService: AuthService
-  ) {
-    this.logger = loggerService.setContext(BotAuthService.name)
+  ) {}
+
+  get authProvider() {
+    return this.refreshAuthProvider
   }
 
   async onModuleInit(): Promise<void> {
@@ -39,7 +40,7 @@ export class BotAuthService implements OnModuleInit {
       }
     })()
 
-    this.authProvider = new RefreshingAuthProvider(
+    this.refreshAuthProvider = new RefreshingAuthProvider(
       {
         clientId,
         clientSecret,
