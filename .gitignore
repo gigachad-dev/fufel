@@ -37,3 +37,6 @@ lerna-debug.log*
 # Envs
 .env
 .env.production
+
+# Database
+*.sqlite
