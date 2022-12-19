@@ -17,16 +17,14 @@ export class AuthService {
   }
 
   async getTokens(): Promise<Auth | null> {
-    return await this.repository.findOne({ where: { id: 1 } })
+    return await this.repository
+      .createQueryBuilder('auth')
+      .select('auth')
+      .orderBy({ 'auth.id': 'DESC' })
+      .getOne()
   }
 
   async refreshAuth(tokens: Tokens): Promise<void> {
-    await this.repository.upsert(
-      {
-        id: 1,
-        ...tokens
-      },
-      []
-    )
+    await this.repository.save(tokens)
   }
 }

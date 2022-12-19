@@ -12,13 +12,14 @@ export class DatabaseService implements OnModuleInit {
       ...this.configService.database,
       type: 'postgres',
       entities: [Auth],
-      logging: true,
+      // logging: true,
       synchronize: true
     })
   }
 
   async onModuleInit(): Promise<void> {
     await this._dataSource.initialize()
+    // await this._dataSource.runMigrations()
   }
 
   get dataSource(): DataSource {
