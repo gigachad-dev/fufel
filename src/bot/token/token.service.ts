@@ -1,22 +1,22 @@
 import { Injectable } from '@nestjs/common'
 import { AccessToken } from '@twurple/auth/lib'
 import { DatabaseService } from 'src/common/database/database.service'
+import { Token } from 'src/enitities/token'
 import { Repository } from 'typeorm'
-import { Auth } from './auth.entity'
 
 interface Tokens extends Omit<AccessToken, 'obtainmentTimestamp'> {
   obtainmentTimestamp: Date
 }
 
 @Injectable()
-export class AuthService {
-  private readonly repository: Repository<Auth>
+export class TokenService {
+  private readonly repository: Repository<Token>
 
   constructor(private readonly database: DatabaseService) {
-    this.repository = this.database.dataSource.getRepository(Auth)
+    this.repository = this.database.dataSource.getRepository(Token)
   }
 
-  async getTokens(): Promise<Auth | null> {
+  async getTokens(): Promise<Token | null> {
     return await this.repository
       .createQueryBuilder('auth')
       .select('auth')
@@ -24,7 +24,7 @@ export class AuthService {
       .getOne()
   }
 
-  async refreshAuth(tokens: Tokens): Promise<void> {
+  async saveTokens(tokens: Tokens): Promise<void> {
     await this.repository.save(tokens)
   }
 }

@@ -1,18 +1,18 @@
 import { Injectable, OnApplicationBootstrap } from '@nestjs/common'
 import { Client } from '@twurple/auth-tmi'
 import { Logger, LoggerService } from 'src/common/logger/logger.service'
-import { BotAuthService } from '../auth/auth.service'
+import { AuthService } from '../auth/auth.service'
 
 @Injectable()
-export class BotTmiService implements OnApplicationBootstrap {
+export class IrcService implements OnApplicationBootstrap {
   protected ircClient: Client
   private readonly logger: Logger
 
   constructor(
     private readonly loggerService: LoggerService,
-    private readonly botAuthService: BotAuthService
+    private readonly authService: AuthService
   ) {
-    this.logger = this.loggerService.setContext('Chat')
+    this.logger = this.loggerService.setContext('IRC')
   }
 
   async onApplicationBootstrap(): Promise<void> {
@@ -25,7 +25,7 @@ export class BotTmiService implements OnApplicationBootstrap {
         reconnect: true
       },
       logger: this.logger,
-      authProvider: this.botAuthService.authProvider,
+      authProvider: this.authService.authProvider,
       channels: ['vs_code']
     })
 
