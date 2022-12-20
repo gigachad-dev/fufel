@@ -2,18 +2,18 @@ import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm'
 
 @Entity('token', { schema: 'public' })
 export class Token {
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn('uuid', { name: 'id' })
   id: number
 
-  @Column()
+  @Column('text', { name: 'accessToken' })
   accessToken: string
 
-  @Column()
+  @Column('text', { name: 'refreshToken' })
   refreshToken: string
 
-  @Column()
+  @Column('integer', { name: 'expiresIn' })
   expiresIn: number
 
-  @Column()
+  @Column('timestamp', { name: 'obtainmentTimestamp' })
   obtainmentTimestamp: Date
 }

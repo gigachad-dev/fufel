@@ -17,11 +17,13 @@ export class TokenService {
   }
 
   async getTokens(): Promise<Token | null> {
-    return await this.repository
-      .createQueryBuilder('auth')
-      .select('auth')
-      .orderBy({ 'auth.id': 'DESC' })
+    const tokens = await this.repository
+      .createQueryBuilder('token')
+      .select('token')
+      .orderBy({ 'token.id': 'DESC' })
       .getOne()
+
+    return tokens
   }
 
   async saveTokens(tokens: Tokens): Promise<void> {

@@ -1,4 +1,6 @@
 import { Injectable, OnModuleInit } from '@nestjs/common'
+import { Command } from 'src/enitities/command'
+import { Regular } from 'src/enitities/regular'
 import { Token } from 'src/enitities/token'
 import { DataSource } from 'typeorm'
 import { ConfigService } from '../config/config.service'
@@ -11,7 +13,11 @@ export class DatabaseService implements OnModuleInit {
     this._dataSource = new DataSource({
       ...this.configService.database,
       type: 'postgres',
-      entities: [Token],
+      entities: [
+        Token,
+        Command,
+        Regular
+      ],
       // logging: true,
       synchronize: true
     })
