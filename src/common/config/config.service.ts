@@ -13,11 +13,7 @@ export class ConfigService {
       CLIENT_SECRET: str(),
       ACCESS_TOKEN: str(),
       REFRESH_TOKEN: str(),
-      POSTGRES_DATABASE: str(),
-      POSTGRES_HOST: str(),
-      POSTGRES_PORT: num(),
-      POSTGRES_USER: str(),
-      POSTGRES_PASSWORD: str(),
+      DATABASE_URL: str(),
       SERVER_HOST: str({ default: '0.0.0.0' }),
       SERVER_PORT: num({ default: 3000 }),
       NODE_ENV: str({ choices: ['development', 'production'] })
@@ -34,14 +30,8 @@ export class ConfigService {
     }
   }
 
-  get database() {
-    return {
-      host: this.config.POSTGRES_HOST,
-      port: this.config.POSTGRES_PORT,
-      username: this.config.POSTGRES_USER,
-      password: this.config.POSTGRES_PASSWORD,
-      database: this.config.POSTGRES_DATABASE
-    }
+  get databaseUrl(): string {
+    return this.config.DATABASE_URL
   }
 
   get host(): string {

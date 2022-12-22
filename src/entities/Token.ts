@@ -1,7 +1,7 @@
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm'
 
-@Entity('auth', { schema: 'public' })
-export class Auth {
+@Entity('token', { schema: 'public' })
+export class Token {
   @PrimaryGeneratedColumn('uuid', { name: 'id' })
   id: number
 

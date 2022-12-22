@@ -5,10 +5,6 @@ export interface Config {
   REFRESH_TOKEN: string
   SERVER_HOST: string
   SERVER_PORT: number
-  POSTGRES_HOST: string
-  POSTGRES_PORT: number
-  POSTGRES_USER: string
-  POSTGRES_PASSWORD: string
-  POSTGRES_DATABASE: string
+  DATABASE_URL: string
   NODE_ENV: 'development' | 'production'
 }

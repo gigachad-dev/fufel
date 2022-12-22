@@ -1,61 +1,67 @@
 import { Injectable, OnModuleInit } from '@nestjs/common'
-import { AccessToken, RefreshingAuthProvider } from '@twurple/auth'
-import { AuthService } from 'src/api/auth/auth.service'
+import {
+  AccessToken,
+  accessTokenIsExpired,
+  RefreshingAuthProvider
+} from '@twurple/auth'
+import { TokenService } from 'src/api/token/token.service'
 import { ConfigService } from 'src/common/config/config.service'
-import { Logger, LoggerService } from 'src/common/logger/logger.service'
 
 @Injectable()
-export class BotAuthService implements OnModuleInit {
-  protected refreshAuthProvider: RefreshingAuthProvider
-  protected logger: Logger
+export class AuthService implements OnModuleInit {
+  public authProvider: RefreshingAuthProvider
 
   constructor(
     private readonly configService: ConfigService,
-    private readonly authService: AuthService
+    private readonly tokenService: TokenService
   ) {}
 
-  get authProvider() {
-    return this.refreshAuthProvider
-  }
-
   async onModuleInit(): Promise<void> {
-    const { accessToken, clientId, clientSecret, refreshToken, scopes } =
-      this.configService.tokens
+    const { clientId, clientSecret } = this.configService.tokens
+    const tokens = await this.applicationTokens()
 
-    const authTokens = await this.authService.getTokens()
-    const initialAuthTokens = (() => {
-      if (authTokens) {
-        return {
-          ...authTokens,
-          obtainmentTimestamp: authTokens.obtainmentTimestamp.getTime()
-        }
-      }
-
-      return {
-        accessToken,
-        refreshToken,
-        expiresIn: 1,
-        obtainmentTimestamp: 0,
-        scope: scopes
-      }
-    })()
-
-    this.refreshAuthProvider = new RefreshingAuthProvider(
+    this.authProvider = new RefreshingAuthProvider(
       {
         clientId,
         clientSecret,
         onRefresh: (token) => this.onRefreshToken(token)
       },
-      initialAuthTokens
+      tokens
     )
   }
 
-  onRefreshToken(token: AccessToken) {
+  private onRefreshToken(accessToken: AccessToken): void {
     const tokens = {
-      ...token,
-      obtainmentTimestamp: new Date(token.obtainmentTimestamp)
+      ...accessToken,
+      obtainmentTimestamp: new Date(accessToken.obtainmentTimestamp)
     }
 
-    this.authService.refreshAuth(tokens)
+    this.tokenService.saveTokens(tokens)
+  }
+
+  private async applicationTokens() {
+    const { accessToken, refreshToken, scopes } = this.configService.tokens
+    const initialTokens = {
+      accessToken,
+      refreshToken,
+      expiresIn: 1,
+      obtainmentTimestamp: 0,
+      scope: scopes
+    }
+
+    const tokensFromDb = await this.tokenService.getTokens()
+    if (tokensFromDb) {
+      const obtainmentTimestamp = tokensFromDb.obtainmentTimestamp.getTime()
+      const tokens = { ...tokensFromDb, obtainmentTimestamp }
+      const tokensIsExpired = accessTokenIsExpired(tokens)
+
+      if (tokensIsExpired) {
+        return initialTokens
+      }
+
+      return tokens
+    }
+
+    return initialTokens
   }
 }

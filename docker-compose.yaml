@@ -3,15 +3,37 @@ version: '3.8'
 services:
   postgres:
     image: postgres:14-alpine
-    restart: always
     volumes:
-      - pg-data:/var/lib/postgresql/data
+      - postgres:/var/lib/postgresql/data
     environment:
       POSTGRES_USER: fufel
       POSTGRES_PASSWORD: fufel
       POSTGRES_DB: fufel
     ports:
       - 5432:5432
+    networks:
+      - postgres
+    restart: unless-stopped
+
+  pgadmin:
+    container_name: pgadmin_container
+    image: dpage/pgadmin4
+    environment:
+      PGADMIN_DEFAULT_EMAIL: fufel@example.com
+      PGADMIN_DEFAULT_PASSWORD: fufel
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+    volumes:
+       - pgadmin:/var/lib/pgadmin
+    ports:
+      - 5050:80
+    networks:
+      - postgres
+    restart: unless-stopped
+
+networks:
+  postgres:
+    driver: bridge
 
 volumes:
-  pg-data:
+    postgres:
+    pgadmin:
