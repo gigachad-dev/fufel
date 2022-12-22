@@ -1,13 +1,15 @@
 import { Injectable, OnModuleInit } from '@nestjs/common'
-import { AccessToken, RefreshingAuthProvider } from '@twurple/auth'
+import {
+  AccessToken,
+  accessTokenIsExpired,
+  RefreshingAuthProvider
+} from '@twurple/auth'
 import { TokenService } from 'src/api/token/token.service'
 import { ConfigService } from 'src/common/config/config.service'
-import { Logger } from 'src/common/logger/logger.service'
 
 @Injectable()
 export class AuthService implements OnModuleInit {
   public authProvider: RefreshingAuthProvider
-  protected logger: Logger
 
   constructor(
     private readonly configService: ConfigService,
@@ -39,21 +41,27 @@ export class AuthService implements OnModuleInit {
 
   async initialTokens() {
     const { accessToken, refreshToken, scopes } = this.configService.tokens
-    const authTokens = await this.tokenService.getTokens()
-
-    if (authTokens) {
-      return {
-        ...authTokens,
-        obtainmentTimestamp: authTokens.obtainmentTimestamp.getTime()
-      }
-    }
-
-    return {
+    const initialTokens = {
       accessToken,
       refreshToken,
       expiresIn: 1,
       obtainmentTimestamp: 0,
       scope: scopes
     }
+
+    const tokensFromDb = await this.tokenService.getTokens()
+    if (tokensFromDb) {
+      const obtainmentTimestamp = tokensFromDb.obtainmentTimestamp.getTime()
+      const tokens = { ...tokensFromDb, obtainmentTimestamp }
+      const tokensIsExpired = accessTokenIsExpired(tokens)
+
+      if (tokensIsExpired) {
+        return initialTokens
+      }
+
+      return tokens
+    }
+
+    return initialTokens
   }
 }
