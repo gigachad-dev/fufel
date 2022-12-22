@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common'
 import { AccessToken } from '@twurple/auth/lib'
 import { DatabaseService } from 'src/common/database/database.service'
-import { Token } from 'src/enitities/token'
+import { Token } from 'src/entities/Token'
 import { Repository } from 'typeorm'
 
 interface Tokens extends Omit<AccessToken, 'obtainmentTimestamp'> {

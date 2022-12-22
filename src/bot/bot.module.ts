@@ -4,9 +4,9 @@ import { TokenService } from 'src/api/token/token.service'
 import { CommonModule } from 'src/common/common.module'
 import { ApiService } from './api/api.service'
 import { AuthService } from './auth/auth.service'
-import { EventsubService } from './eventsub/eventsub.service'
+import { EventSubService } from './eventsub/eventsub.service'
 import { IrcService } from './irc/irc.service'
-import { PubsubService } from './pubsub/pubsub.service'
+import { PubSubService } from './pubsub/pubsub.service'
 
 @Module({
   imports: [CommonModule, ApiModule],
@@ -14,9 +14,9 @@ import { PubsubService } from './pubsub/pubsub.service'
     TokenService,
     AuthService,
     ApiService,
-    IrcService,
-    PubsubService,
-    EventsubService
+    PubSubService,
+    EventSubService,
+    IrcService
   ]
 })
 export class BotModule {}

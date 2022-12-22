@@ -7,33 +7,49 @@ import { ApiClient } from '@twurple/api'
 import { ClientCredentialsAuthProvider } from '@twurple/auth'
 import { EventSubListener } from '@twurple/eventsub'
 import { NgrokAdapter } from '@twurple/eventsub-ngrok'
+import { ApiService } from 'src/bot/api/api.service'
 import { ConfigService } from 'src/common/config/config.service'
-import { ApiService } from '../api/api.service'
 
 @Injectable()
-export class EventsubService
+export class EventSubService
   implements OnApplicationBootstrap, OnApplicationShutdown
 {
-  private eventsubClient: EventSubListener
+  private eventSubClient: EventSubListener
+  private eventSubApiClient: ApiClient
 
   constructor(
     private readonly configService: ConfigService,
     private readonly apiService: ApiService
   ) {}
 
-  async onApplicationBootstrap() {
-    const { clientId, clientSecret, scopes } = this.configService.tokens
-    this.eventsubClient = new EventSubListener({
+  async onApplicationBootstrap(): Promise<void> {
+    const { clientId, clientSecret } = this.configService.tokens
+
+    this.eventSubApiClient = new ApiClient({
+      authProvider: new ClientCredentialsAuthProvider(clientId, clientSecret)
+    })
+
+    this.eventSubClient = new EventSubListener({
       adapter: new NgrokAdapter(),
-      apiClient: new ApiClient({
-        authProvider: new ClientCredentialsAuthProvider(clientId, clientSecret)
-      }),
+      apiClient: this.eventSubApiClient,
       strictHostCheck: true,
       secret: clientSecret
     })
 
-    await this.eventsubClient.listen()
+    await this.deleteAllSubscriptions()
+    const userId = await this.apiService.apiClient.users.getMe()
+    await this.eventSubClient.subscribeToChannelUpdateEvents(
+      userId,
+      console.dir
+    )
+    await this.eventSubClient.listen()
   }
 
-  async onApplicationShutdown(signal: string): Promise<void> {}
+  async onApplicationShutdown(): Promise<void> {
+    this.deleteAllSubscriptions()
+  }
+
+  private async deleteAllSubscriptions(): Promise<void> {
+    await this.eventSubApiClient.eventSub.deleteAllSubscriptions()
+  }
 }

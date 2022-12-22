@@ -1,6 +1,6 @@
 import { Injectable, OnApplicationBootstrap } from '@nestjs/common'
 import { ApiClient } from '@twurple/api'
-import { AuthService } from '../auth/auth.service'
+import { AuthService } from 'src/bot/auth/auth.service'
 
 @Injectable()
 export class ApiService implements OnApplicationBootstrap {

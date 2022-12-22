@@ -1,8 +1,8 @@
 import { Injectable, OnApplicationBootstrap } from '@nestjs/common'
 import { Client } from '@twurple/auth-tmi'
+import { ApiService } from 'src/bot/api/api.service'
+import { AuthService } from 'src/bot/auth/auth.service'
 import { Logger, LoggerService } from 'src/common/logger/logger.service'
-import { ApiService } from '../api/api.service'
-import { AuthService } from '../auth/auth.service'
 
 @Injectable()
 export class IrcService implements OnApplicationBootstrap {
@@ -11,14 +11,14 @@ export class IrcService implements OnApplicationBootstrap {
 
   constructor(
     private readonly loggerService: LoggerService,
-    private readonly apiService: ApiService,
-    private readonly authService: AuthService
+    private readonly authService: AuthService,
+    private readonly apiService: ApiService
   ) {
     this.logger = this.loggerService.setContext(IrcService.name)
   }
 
   async onApplicationBootstrap(): Promise<void> {
-    const userInfo = await this.apiService.apiClient.users.getMe()
+    const { displayName } = await this.apiService.apiClient.users.getMe()
 
     this.ircClient = new Client({
       options: {
@@ -30,7 +30,7 @@ export class IrcService implements OnApplicationBootstrap {
       },
       logger: this.logger,
       authProvider: this.authService.authProvider,
-      channels: [userInfo.name]
+      channels: [displayName]
     })
 
     await this.ircClient.connect()

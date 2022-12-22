@@ -1,29 +1,21 @@
 import { Injectable, OnApplicationBootstrap } from '@nestjs/common'
 import { PubSubClient } from '@twurple/pubsub'
-import { Logger, LoggerService } from 'src/common/logger/logger.service'
-import { ApiService } from '../api/api.service'
-import { AuthService } from '../auth/auth.service'
+import { AuthService } from 'src/bot/auth/auth.service'
 
 @Injectable()
-export class PubsubService implements OnApplicationBootstrap {
+export class PubSubService implements OnApplicationBootstrap {
   private pubsubClient: PubSubClient
-  private logger: Logger
 
-  constructor(
-    private readonly apiService: ApiService,
-    private readonly authService: AuthService,
-    private readonly loggerService: LoggerService
-  ) {
-    this.logger = loggerService.setContext(PubSubClient.name)
-  }
+  constructor(private readonly authService: AuthService) {}
 
   async onApplicationBootstrap(): Promise<void> {
     this.pubsubClient = new PubSubClient()
-    await this.pubsubClient.registerUserListener(this.authService.authProvider)
 
-    const userInfo = await this.apiService.apiClient.users.getMe()
-    await this.pubsubClient.onRedemption(userInfo.id, () => {})
-    await this.pubsubClient.onBits(userInfo.id, () => {})
-    await this.pubsubClient.onSubscription(userInfo.id, () => {})
+    const userId = await this.pubsubClient.registerUserListener(
+      this.authService.authProvider
+    )
+    await this.pubsubClient.onRedemption(userId, () => {})
+    await this.pubsubClient.onBits(userId, () => {})
+    await this.pubsubClient.onSubscription(userId, () => {})
   }
 }

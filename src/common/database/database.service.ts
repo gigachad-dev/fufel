@@ -1,34 +1,32 @@
-import { Injectable, OnModuleInit } from '@nestjs/common'
-import { Command } from 'src/enitities/command'
-import { Regular } from 'src/enitities/regular'
-import { Token } from 'src/enitities/token'
+import { Injectable, OnApplicationShutdown, OnModuleInit } from '@nestjs/common'
+import { ConfigService } from 'src/common/config/config.service'
+import { Command } from 'src/entities/Command'
+import { Regular } from 'src/entities/Regular'
+import { Token } from 'src/entities/Token'
 import { DataSource } from 'typeorm'
-import { ConfigService } from '../config/config.service'
 
 @Injectable()
-export class DatabaseService implements OnModuleInit {
-  private readonly _dataSource: DataSource
+export class DatabaseService implements OnModuleInit, OnApplicationShutdown {
+  public readonly dataSource: DataSource
 
   constructor(private readonly configService: ConfigService) {
-    this._dataSource = new DataSource({
-      ...this.configService.database,
+    this.dataSource = new DataSource({
       type: 'postgres',
+      url: this.configService.databaseUrl,
+      synchronize: true,
       entities: [
         Token,
         Command,
         Regular
-      ],
-      // logging: true,
-      synchronize: true
+      ]
     })
   }
 
   async onModuleInit(): Promise<void> {
-    await this._dataSource.initialize()
-    // await this._dataSource.runMigrations()
+    await this.dataSource.initialize()
   }
 
-  get dataSource(): DataSource {
-    return this._dataSource
+  async onApplicationShutdown(): Promise<void> {
+    await this.dataSource.destroy()
   }
 }

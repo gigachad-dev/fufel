@@ -18,7 +18,7 @@ export class AuthService implements OnModuleInit {
 
   async onModuleInit(): Promise<void> {
     const { clientId, clientSecret } = this.configService.tokens
-    const tokens = await this.initialTokens()
+    const tokens = await this.applicationTokens()
 
     this.authProvider = new RefreshingAuthProvider(
       {
@@ -30,7 +30,7 @@ export class AuthService implements OnModuleInit {
     )
   }
 
-  onRefreshToken(accessToken: AccessToken): void {
+  private onRefreshToken(accessToken: AccessToken): void {
     const tokens = {
       ...accessToken,
       obtainmentTimestamp: new Date(accessToken.obtainmentTimestamp)
@@ -39,7 +39,7 @@ export class AuthService implements OnModuleInit {
     this.tokenService.saveTokens(tokens)
   }
 
-  async initialTokens() {
+  private async applicationTokens() {
     const { accessToken, refreshToken, scopes } = this.configService.tokens
     const initialTokens = {
       accessToken,
