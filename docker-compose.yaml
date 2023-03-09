@@ -16,7 +16,7 @@ services:
     restart: unless-stopped
 
   pgadmin:
-    container_name: pgadmin_container
+    container_name: fufel
     image: dpage/pgadmin4
     environment:
       PGADMIN_DEFAULT_EMAIL: fufel@example.com
